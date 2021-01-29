@@ -1,3 +1,4 @@
+import requests
 import argparse
 import numpy as np
 from PIL import Image
@@ -12,9 +13,13 @@ parser.add_argument("input_file", type=str, help="path to original image")
 parser.add_argument("colors", type=int, help="number of grayscale values to use on output")
 parser.add_argument("output_width", type=int, help="width of output in characters")
 parser.add_argument("output_file", type=str, help="path to write text file")
+parser.add_argument("-w", "--web", action="store_true", help="use input_file as a URL")
 args = parser.parse_args()
 
-original_img = Image.open(args.input_file)
+if args.web:
+    original_img = Image.open(requests.get(args.input_file, stream=True).raw)
+else:
+    original_img = Image.open(args.input_file)
 original_width, original_height = original_img.size
 
 img_bw_quantized = original_img.convert("L").quantize(colors=args.colors)
